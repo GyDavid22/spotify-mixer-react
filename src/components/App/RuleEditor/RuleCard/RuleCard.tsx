@@ -24,17 +24,17 @@ function RuleCard({stop}: {stop?: boolean}) {
     return (
         <div className='card'>
           <div className='card-body d-flex flex-column gap-2'>
-            <div className="d-flex justify-content-between align-items-center gap-1">
-              <div className="d-flex align-items-center justify-content-center gap-1">
+            <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-1">
+              <div className="d-flex flex-column flex-md-row align-items-center justify-content-center gap-1">
                 <select className="form-control form-select" defaultValue={type} onChange={(e) => updateType(e.target.value as RuleType)}>
                   <option value={'year'}>Year</option>
                   <option value={'popularity'}>Popularity</option>
                 </select>
-                <div className="d-flex align-items-center justify-content-center gap-1">
+                <div className="d-flex w-100 align-items-center justify-content-center gap-1">
                   Min:
                   <input type="number" className="form-control" min={min} max={isNaN(maxValue) ? max : maxValue} onChange={(e) => setMinValue(parseInt(e.target.value))}></input>
                 </div>
-                <div className="d-flex align-items-center justify-content-center gap-1">
+                <div className="d-flex w-100 align-items-center justify-content-center gap-1">
                   Max:
                   <input type="number" className="form-control" min={isNaN(minValue) ? min : minValue} max={max} onChange={(e) => setMaxValue(parseInt(e.target.value))}></input>
                 </div>

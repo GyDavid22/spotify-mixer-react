@@ -4,6 +4,6 @@
   font: inherit;
 }
 
-.form-control {
-    width: auto !important;
+.checkmark {
+  font-size: 2rem;
 }
