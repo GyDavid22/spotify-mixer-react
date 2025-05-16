@@ -1,0 +1,9 @@
+.github-link {
+  color: inherit;
+  text-decoration: none;
+  font: inherit;
+}
+
+.form-control {
+    width: auto !important;
+}
