@@ -7,12 +7,9 @@ import RulePicker from './RulePicker/RulePicker';
 import Button from './Button/Button';
 import Console from './Console/Console';
 import * as bootstrap from 'bootstrap';
- 
-export interface ISettingsData {
-    userId: string;
-    clientId: string;
-    clientSecret: string;
-}
+import { ISettingsData, Ruleset } from '../../lib/structures';
+
+type QueryState = 'ready' | 'pending' | 'success' | 'error';
 
 function App() {
   useEffect(() => {
@@ -26,6 +23,20 @@ function App() {
       initialSettings = JSON.parse(local);
     }
   }
+  let initialRulesets: Ruleset[] | undefined;
+  if (typeof localStorage !== 'undefined' && localStorage) {
+    const local = localStorage.getItem('rulesets');
+    if (local) {
+      initialRulesets = JSON.parse(local);
+    }
+  }
+  let initialSelected: number | undefined;
+  if (typeof localStorage !== 'undefined' && localStorage) {
+    const local = localStorage.getItem('selectedRuleset');
+    if (local) {
+      initialSelected = JSON.parse(local);
+    }
+  }
   const [settings, setSettings] = useState(initialSettings ? initialSettings : {
     userId: '',
     clientId: '',
@@ -37,40 +48,107 @@ function App() {
       localStorage.setItem('authSettings', JSON.stringify(newSettings));
     }
   };
+  const [queryState, setQueryState] = useState<QueryState>('ready');
+  const [rulesets, setRulesets] = useState<Ruleset[]>(initialRulesets ? initialRulesets : []);
+  const [selectedRuleset, setSelectedRuleset] = useState<Ruleset | undefined>(initialSelected ? rulesets[initialSelected] : undefined);
+  const rulesetSaveHandler = (name: string) => {
+    const result = [...rulesets, { name, length: 0, rules: [] } as Ruleset];
+    setRulesets(result);
+    if (typeof localStorage !== 'undefined' && localStorage) {
+      localStorage.setItem('rulesets', JSON.stringify(result));
+    }
+  };
+  const rulesetChangeHandler = (index: number) => {
+    if (index !== -1) {
+      setSelectedRuleset(rulesets[index]);
+    } else {
+      setSelectedRuleset(undefined);
+    }
+    if (typeof localStorage !== 'undefined' && localStorage) {
+      localStorage.setItem('selectedRuleset', JSON.stringify(index));
+    }
+  };
+  const rulesetDeleteHandler = (index: number) => {
+    const result = [ ...rulesets.slice(0, index), ...rulesets.slice(index + 1) ];
+    setRulesets(result);
+    if (typeof localStorage !== 'undefined' && localStorage) {
+      localStorage.setItem('rulesets', JSON.stringify(result));
+    }
+  };
+  const downloadHandler = () => {
+    const file = new Blob([JSON.stringify(rulesets, null, 0)], { type: 'application/json' });
+    const url = URL.createObjectURL(file);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rulesets_${new Date().toISOString()}.json`;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
+  const uploadHandler = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+
+    input.onchange = async () => {
+        if (input.files?.[0]) {
+            const text = await input.files[0].text();
+            try {
+                const json = JSON.parse(text);
+                setRulesets(json);
+                setSelectedRuleset(undefined);
+            } catch { }
+        }
+    };
+
+    input.click();
+  };
 
   return (
     <>
-      <h1 className='mb-5 mt-4'><Icon name='bi-spotify me-3'></Icon>Spotify Mixer</h1>
+      <h1 className='mb-5 mt-4'><Icon classNames='bi-spotify me-3'></Icon>Spotify Mixer</h1>
       <div className='d-flex flex-column gap-1'>       
         <p className='small mb-0 text-body-secondary'>
           <a className='me-1' href='https://developer.spotify.com/documentation/web-api/concepts/apps' target='_blank' rel="_ noreferrer">
             How can I get these?
           </a>
-          <span data-bs-toggle="tooltip" data-bs-title="Make sure to add the current URL to the redirect URIs!"><Icon name='bi-question-circle-fill'></Icon></span>
+          <span data-bs-toggle="tooltip" data-bs-title="Make sure to add the current URL to the redirect URIs!"><Icon classNames='bi-question-circle-fill'></Icon></span>
         </p>
-        <Settings settings={settings} onChange={recieveSettings}></Settings>
-        <div className='my-1'></div>
-        <RulePicker></RulePicker>
-        <RuleEditor></RuleEditor>
-        <div className='my-1'></div>
-        <div className='d-flex align-items-center gap-2'>
-          <Button text='Start mixing!' iconName='bi-vinyl-fill' styleName='success' fill={true}></Button>
-          <div className="spinner-border" role="status">
-            <span className="visually-hidden">Loading...</span>
+        <fieldset disabled={queryState === 'pending'} className='d-flex flex-column gap-1'>
+          <Settings settings={settings} onChange={recieveSettings}></Settings>
+          <div className='my-1'></div>
+          <RulePicker rules={rulesets.map(r => { return { name: r.name } })} onChange={rulesetChangeHandler} onDelete={rulesetDeleteHandler} onSave={rulesetSaveHandler} onDownload={downloadHandler} onUpload={uploadHandler}></RulePicker>
+          <RuleEditor></RuleEditor>
+          <div className='my-1'></div>
+          <div className='d-flex align-items-center gap-2'>
+            <Button text='Start mixing!' iconName='bi-vinyl-fill' styleName='success' fill={true}></Button>
+            {
+              queryState === 'pending' ? (
+                <div className="spinner-border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              ) : queryState === 'success' ? (
+                <Icon classNames='bi-check-lg text-success checkmark'></Icon>
+              ) : <></>
+            }
           </div>
-          <Icon name='bi-check-lg text-success checkmark'></Icon>
-        </div>
+        </fieldset>
         <div className='my-1'></div>
-          {true && (<><Console messages={[{message: 'Console is working!', type: 'standard'}]}></Console><div className='my-1'></div></>)}
+          {true && (<div id='console'><Console messages={[{message: 'Console is working!', type: 'standard'}]}></Console><div className='my-1'></div></div>)}
         <div>
           <h5>Why?</h5>
           <p>Spotify mixes are great, but there is one problem: they are too specific. With this web app, you can create mixes with more variety and predefined ratios from an already existing pool of songs.</p>
           <p>Let's imagine one scenario: You would like to listen to old music and new ones as well, but you have 1000 old songs and only 20 new ones. Shuffle doesn't help you out, you would mostly hear old ones, with the new ones here and there. Spotify mixes would create lists only with either old or new songs. With this web app you can specify ratios: e.g. 80% music from the '80s and 20% since 2020. This way you can give each category as much attention as you would like to, without creating the playlists manually, sparing time, resulting in a personalized radio-like experience.</p>
+          <h5>
+            Data privacy
+          </h5>
+          <p>This app doesn't use any backend besides the official Spotify APIs. That means your Spotify application credentials are safe and are not forwarded to anyone but Spotify. <b>Every data you input here are stored locally on your computer, using localStorage. Spotify app credentials are not included in the JSON backup for safety reasons.</b></p>
         </div>
       </div>
       <footer className='d-flex justify-content-center my-3 text-body-secondary'>
         <a className='github-link' href='https://github.com/GyDavid22/spotify-mixer-react' target='_blank' rel='_ noreferrer'>
-          <Icon name='bi-github'></Icon>
+          <Icon classNames='bi-github'></Icon>
         </a>
       </footer>
     </>

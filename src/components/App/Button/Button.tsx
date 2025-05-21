@@ -12,7 +12,7 @@ function Button({ text, iconName, styleName, fill, onClick }: IButton) {
     return (
         <button type="button" className={`btn btn-${fill ? '' : 'outline-'}${styleName ? styleName : 'primary'}`} onClick={onClick}>
             {
-                iconName && <Icon name={`${iconName} me-1`}></Icon>
+                iconName && <Icon classNames={`${iconName} me-1`}></Icon>
             }
             {text}
         </button>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ISettingsData } from "../App";
+import { ISettingsData } from "../../../lib/structures";
 
 interface ISettings {
     settings: ISettingsData,

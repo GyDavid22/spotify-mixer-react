@@ -1,10 +1,10 @@
 interface IIcon {
-    name: string;
+    classNames: string;
 }
 
-function Icon({name}: IIcon) {
+function Icon({classNames}: IIcon) {
     return (
-        <i className={`bi ${name}`}></i>
+        <i className={`bi ${classNames}`}></i>
     );
 }
 

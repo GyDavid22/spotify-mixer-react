@@ -1,7 +1,10 @@
 import { useState } from "react";
 import Button from "../../Button/Button";
+import './RuleCard.css';
+import { RuleType } from "../../../../lib/structures";
 
-type RuleType = 'year' | 'popularity';
+// use up... csak ha levél
+// megszerezni az ID-t, hogy a label működjön
 
 function RuleCard({stop}: {stop?: boolean}) {
     const [type, setType] = useState<RuleType>('year');
@@ -24,19 +27,32 @@ function RuleCard({stop}: {stop?: boolean}) {
     return (
         <div className='card'>
           <div className='card-body d-flex flex-column gap-2'>
-            <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-1">
-              <div className="d-flex flex-column flex-md-row align-items-center justify-content-center gap-1">
-                <select className="form-control form-select" defaultValue={type} onChange={(e) => updateType(e.target.value as RuleType)}>
-                  <option value={'year'}>Year</option>
-                  <option value={'popularity'}>Popularity</option>
-                </select>
+            <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-1">
+              <div className="d-flex flex-column gap-1 flex-grow-1 w-100 w-md-auto">
                 <div className="d-flex w-100 align-items-center justify-content-center gap-1">
-                  Min:
-                  <input type="number" className="form-control" min={min} max={isNaN(maxValue) ? max : maxValue} onChange={(e) => setMinValue(parseInt(e.target.value))}></input>
+                  <label>Probability:</label>
+                  <div className="input-group">
+                    <input type="number" className="form-control" min="0" max="100"></input>
+                    <span className="input-group-text">%</span>
+                  </div>
                 </div>
-                <div className="d-flex w-100 align-items-center justify-content-center gap-1">
-                  Max:
-                  <input type="number" className="form-control" min={isNaN(minValue) ? min : minValue} max={max} onChange={(e) => setMaxValue(parseInt(e.target.value))}></input>
+                <div className="w-100 d-flex flex-column flex-md-row gap-1">
+                  <select className="form-control form-select" defaultValue={type} onChange={(e) => updateType(e.target.value as RuleType)}>
+                    <option value={'year'}>Year</option>
+                    <option value={'popularity'}>Popularity</option>
+                  </select>
+                  <div className="d-flex w-100 align-items-center justify-content-center gap-1">
+                    <label>Min:</label>
+                    <input type="number" className="form-control" min={min} max={isNaN(maxValue) ? max : maxValue} onChange={(e) => setMinValue(parseInt(e.target.value))}></input>
+                  </div>
+                  <div className="d-flex w-100 align-items-center justify-content-center gap-1">
+                    <label>Max:</label>
+                    <input type="number" className="form-control" min={isNaN(minValue) ? min : minValue} max={max} onChange={(e) => setMaxValue(parseInt(e.target.value))}></input>
+                  </div>
+                </div>
+                <div className="form-check">
+                  <input type="checkbox" className="form-check-input"></input>
+                  <label className="form-check-label">Use up all songs before repeating</label>
                 </div>
               </div>
               <div className="d-flex align-items-center justify-content-center gap-1">
