@@ -51,12 +51,15 @@ function App() {
   const [queryState, setQueryState] = useState<QueryState>('ready');
   const [rulesets, setRulesets] = useState<Ruleset[]>(initialRulesets ? initialRulesets : []);
   const [selectedRuleset, setSelectedRuleset] = useState<Ruleset | undefined>(initialSelected ? rulesets[initialSelected] : undefined);
+  const saveRuleset = (rules: Ruleset[]) => {
+    if (typeof localStorage !== 'undefined' && localStorage) {
+      localStorage.setItem('rulesets', JSON.stringify(rules));
+    }
+  };
   const rulesetSaveHandler = (name: string) => {
     const result = [...rulesets, { name, length: 0, rules: [] } as Ruleset];
     setRulesets(result);
-    if (typeof localStorage !== 'undefined' && localStorage) {
-      localStorage.setItem('rulesets', JSON.stringify(result));
-    }
+    saveRuleset(result);
   };
   const rulesetChangeHandler = (index: number) => {
     if (index !== -1) {
@@ -71,9 +74,7 @@ function App() {
   const rulesetDeleteHandler = (index: number) => {
     const result = [ ...rulesets.slice(0, index), ...rulesets.slice(index + 1) ];
     setRulesets(result);
-    if (typeof localStorage !== 'undefined' && localStorage) {
-      localStorage.setItem('rulesets', JSON.stringify(result));
-    }
+    saveRuleset(result);
   };
   const downloadHandler = () => {
     const file = new Blob([JSON.stringify(rulesets, null, 0)], { type: 'application/json' });
@@ -97,7 +98,8 @@ function App() {
             try {
                 const json = JSON.parse(text);
                 setRulesets(json);
-                setSelectedRuleset(undefined);
+                rulesetChangeHandler(-1);
+                saveRuleset(json);
             } catch { }
         }
     };
