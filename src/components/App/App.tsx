@@ -7,7 +7,7 @@ import RulePicker from './RulePicker/RulePicker';
 import Button from './Button/Button';
 import Console from './Console/Console';
 import * as bootstrap from 'bootstrap';
-import { ISettingsData, Ruleset } from '../../lib/structures';
+import { ISettingsData, IRuleset } from '../../lib/structures';
 
 type QueryState = 'ready' | 'pending' | 'success' | 'error';
 
@@ -23,7 +23,7 @@ function App() {
       initialSettings = JSON.parse(local);
     }
   }
-  let initialRulesets: Ruleset[] | undefined;
+  let initialRulesets: IRuleset[] | undefined;
   if (typeof localStorage !== 'undefined' && localStorage) {
     const local = localStorage.getItem('rulesets');
     if (local) {
@@ -34,7 +34,7 @@ function App() {
   if (typeof localStorage !== 'undefined' && localStorage) {
     const local = localStorage.getItem('selectedRuleset');
     if (local) {
-      initialSelected = JSON.parse(local);
+      initialSelected = parseInt(JSON.parse(local));
     }
   }
   const [settings, setSettings] = useState(initialSettings ? initialSettings : {
@@ -49,24 +49,20 @@ function App() {
     }
   };
   const [queryState, setQueryState] = useState<QueryState>('ready');
-  const [rulesets, setRulesets] = useState<Ruleset[]>(initialRulesets ? initialRulesets : []);
-  const [selectedRuleset, setSelectedRuleset] = useState<Ruleset | undefined>(initialSelected ? rulesets[initialSelected] : undefined);
-  const saveRuleset = (rules: Ruleset[]) => {
+  const [rulesets, setRulesets] = useState<IRuleset[]>(initialRulesets ?? []);
+  const [selectedRuleset, setSelectedRuleset] = useState<number>(initialSelected ?? -1);
+  const saveRuleset = (rules: IRuleset[]) => {
     if (typeof localStorage !== 'undefined' && localStorage) {
       localStorage.setItem('rulesets', JSON.stringify(rules));
     }
   };
   const rulesetSaveHandler = (name: string) => {
-    const result = [...rulesets, { name, length: 0, rules: [] } as Ruleset];
+    const result = [...rulesets, { name, length: 0, rules: [] } as IRuleset];
     setRulesets(result);
     saveRuleset(result);
   };
   const rulesetChangeHandler = (index: number) => {
-    if (index !== -1) {
-      setSelectedRuleset(rulesets[index]);
-    } else {
-      setSelectedRuleset(undefined);
-    }
+    setSelectedRuleset(index);
     if (typeof localStorage !== 'undefined' && localStorage) {
       localStorage.setItem('selectedRuleset', JSON.stringify(index));
     }
@@ -76,6 +72,11 @@ function App() {
     setRulesets(result);
     saveRuleset(result);
   };
+  const rulesetUpdateHandler = (r: IRuleset) => {
+    const result = [ ...rulesets.slice(0, selectedRuleset), r, ...rulesets.slice(selectedRuleset + 1) ];
+    setRulesets(result);
+    saveRuleset(result);
+  }
   const downloadHandler = () => {
     const file = new Blob([JSON.stringify(rulesets, null, 0)], { type: 'application/json' });
     const url = URL.createObjectURL(file);
@@ -120,8 +121,8 @@ function App() {
         <fieldset disabled={queryState === 'pending'} className='d-flex flex-column gap-1'>
           <Settings settings={settings} onChange={recieveSettings}></Settings>
           <div className='my-1'></div>
-          <RulePicker rules={rulesets.map(r => { return { name: r.name } })} onChange={rulesetChangeHandler} onDelete={rulesetDeleteHandler} onSave={rulesetSaveHandler} onDownload={downloadHandler} onUpload={uploadHandler}></RulePicker>
-          <RuleEditor></RuleEditor>
+          <RulePicker rules={rulesets.map(r => { return { name: r.name } })} selectedIndex={selectedRuleset} onChange={rulesetChangeHandler} onDelete={rulesetDeleteHandler} onSave={rulesetSaveHandler} onDownload={downloadHandler} onUpload={uploadHandler}></RulePicker>
+          { selectedRuleset !== -1 && <RuleEditor ruleset={rulesets[selectedRuleset]} onChange={rulesetUpdateHandler}></RuleEditor>}
           <div className='my-1'></div>
           <div className='d-flex align-items-center gap-2'>
             <Button text='Start mixing!' iconName='bi-vinyl-fill' styleName='success' fill={true}></Button>

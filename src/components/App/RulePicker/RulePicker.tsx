@@ -5,6 +5,7 @@ interface IRulePicker {
     rules: {
         name: string,
     }[];
+    selectedIndex: number,
     onSave: (name: string) => void;
     onDelete: (index: number) => void;
     onChange: (index: number) => void;
@@ -12,9 +13,9 @@ interface IRulePicker {
     onUpload: () => void;
 }
 
-function RulePicker({ rules, onSave, onDelete, onChange, onDownload, onUpload }: IRulePicker) {
+function RulePicker({ rules, selectedIndex, onSave, onDelete, onChange, onDownload, onUpload }: IRulePicker) {
     const [nameField, setNameField] = useState<string>('');
-    const [selectValue, setSelectValue] = useState<number>(-1);
+    const [selectValue, setSelectValue] = useState<number>(selectedIndex);
     const selectChangeHandler = (index: number) => {
         setNameField('');
         setSelectValue(index);

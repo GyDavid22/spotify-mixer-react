@@ -6,16 +6,28 @@ export interface ISettingsData {
     clientSecret: string;
 }
 
-export interface Rule {
+export interface IRule {
   probability: number,
   type: RuleType,
   min: number | null,
   max: number | null,
-  subrules: Rule[],
+  useUp: boolean,
+  subrules: IRule[],
 }
 
-export interface Ruleset {
+export const getDefaultRule: () => IRule = () => {
+  return {
+    probability: 0,
+    type: 'year',
+    min: null,
+    max: null,
+    useUp: true,
+    subrules: [],
+  };
+}
+
+export interface IRuleset {
   name: string,
   length: number,
-  rules: Rule[],
+  rules: IRule[],
 }
