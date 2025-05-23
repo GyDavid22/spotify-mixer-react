@@ -72,8 +72,8 @@ function RuleCard({rule, selfIndex, onUpdate, onDelete}: IRuleCard) {
   }
   const [props, setProps] = useState<Props>({
     probability: rule.probability?.toString() ?? '',
-    min: (rule.min ?? Ranges[rule.type].min).toString(),
-    max: (rule.max ?? Ranges[rule.type].max).toString(),
+    min: (rule.min ?? '').toString(),
+    max: (rule.max ?? '').toString(),
   });
   const [prevProps, setPrevProps] = useState<Props>(props);
   const updateProp = (s: string, type: PropertyTypes) => {
