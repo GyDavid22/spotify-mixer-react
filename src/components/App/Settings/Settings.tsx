@@ -1,4 +1,4 @@
-import { ISettingsData } from "../../../lib/structures";
+import { ISettingsData } from "../../../lib/index";
 
 interface ISettings {
     settings: ISettingsData,

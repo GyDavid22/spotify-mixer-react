@@ -1,4 +1,4 @@
-import { getDefaultRule, IRule, IRuleset } from "../../../lib/structures";
+import { getDefaultRule, IRule, IRuleset } from "../../../lib/index";
 import Button from "../Button/Button";
 import RuleCard from "./RuleCard/RuleCard";
 

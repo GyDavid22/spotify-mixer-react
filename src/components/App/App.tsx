@@ -7,7 +7,7 @@ import RulePicker from './RulePicker/RulePicker';
 import Button from './Button/Button';
 import Console from './Console/Console';
 import * as bootstrap from 'bootstrap';
-import { ISettingsData, IRuleset } from '../../lib/structures';
+import { ISettingsData, IRuleset } from '../../lib/index';
 
 type QueryState = 'ready' | 'pending' | 'success' | 'error';
 

@@ -31,3 +31,9 @@ export interface IRuleset {
   length: number,
   rules: IRule[],
 }
+
+export type MessageType = 'standard' | 'error' | 'success';
+
+export interface ILogger {
+  log: (message: string | any, type?: MessageType) => void,
+};

@@ -1,6 +1,6 @@
 import Button from "../../Button/Button";
 import './RuleCard.css';
-import { getDefaultRule, IRule, RuleType } from "../../../../lib/structures";
+import { getDefaultRule, IRule, RuleType } from "../../../../lib/index";
 import { useState } from "react";
 
 type PropertyTypes = 'probability' | 'min' | 'max';
