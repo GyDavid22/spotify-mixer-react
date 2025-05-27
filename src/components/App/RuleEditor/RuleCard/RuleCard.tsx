@@ -1,6 +1,6 @@
 import Button from "../../Button/Button";
 import './RuleCard.css';
-import { getDefaultRule, IRule } from "../../../../lib/structures";
+import { getDefaultRule, IRule, RuleType } from "../../../../lib/structures";
 import { useState } from "react";
 
 type PropertyTypes = 'probability' | 'min' | 'max';
@@ -79,10 +79,18 @@ function RuleCard({rule, selfIndex, onUpdate, onDelete}: IRuleCard) {
   const updateProp = (s: string, type: PropertyTypes) => {
     if (s !== '') {
       let val = parseInt(s);
-      if (val > Ranges[rule.type].max) {
-        val = Ranges[rule.type].max;
-      } else if (val < Ranges[rule.type].min) {
-        val = Ranges[rule.type].min;
+      if (type === 'min' || type === 'max') {
+        if (val > Ranges[rule.type].max) {
+          val = Ranges[rule.type].max;
+        } else if (val < Ranges[rule.type].min) {
+          val = Ranges[rule.type].min;
+        }
+      } else if (type === 'probability') {
+        if (val > Ranges.probability.max) {
+          val = Ranges.probability.max;
+        } else if (val < Ranges.probability.min) {
+          val = Ranges.probability.min;
+        }
       }
       setProps({ ...props, [type]: val.toString() });
       setPrevProps({ ...props, [type]: val.toString() });
@@ -124,7 +132,7 @@ function RuleCard({rule, selfIndex, onUpdate, onDelete}: IRuleCard) {
                   </div>
                 </div>
                 <div className="w-100 d-flex flex-column flex-md-row gap-1">
-                  <select className="form-control form-select" defaultValue={rule.type}>
+                  <select className="form-control form-select" value={rule.type} onChange={(e) => { update({ type: e.target.value as RuleType }) }}>
                     <option value={'year'}>Year</option>
                     <option value={'popularity'}>Popularity</option>
                   </select>
@@ -140,7 +148,7 @@ function RuleCard({rule, selfIndex, onUpdate, onDelete}: IRuleCard) {
                 { 
                   !rule.subrules.length &&
                   <div className="form-check">
-                    <input type="checkbox" id={`useup-${selfItemIndex}`} className="form-check-input"></input>
+                    <input type="checkbox" id={`useup-${selfItemIndex}`} className="form-check-input" checked={rule.useUp} onChange={(e) => { update({ useUp: e.target.checked }) }}></input>
                     <label htmlFor={`useup-${selfItemIndex}`} className="form-check-label">Use up all songs before repeating</label>
                   </div>
                 }
