@@ -1,3 +1,6 @@
+import { ILogger } from "../interfaces";
+import { ALREADY_DOWNLOADED, ISong } from "./song";
+
 interface ImageObject {
   url: string;
   height: number | null;
@@ -33,7 +36,20 @@ interface SpotifyUser {
   uri: string;
 }
 
-class AuthAgent {
+interface IPlaylist {
+    next?: string,
+    items: {
+        track: {
+            album: {
+                release_date: string,
+            },
+            id: string,
+            popularity: number,
+        },
+    }[],
+};
+
+export class AuthAgent {
     private static instance: AuthAgent;
 
     private constructor(private clientId: string) { }
@@ -80,7 +96,7 @@ class AuthAgent {
 
         const redirectUri = window.location.origin + window.location.pathname;
 
-        const scope = 'playlist-modify-public playlist-modify-private playlist-read-private user-library-read user-read-private user-read-email';
+        const scope = 'playlist-modify-public playlist-modify-private playlist-read-private user-library-read user-read-private';
         const authUrl = new URL("https://accounts.spotify.com/authorize");
 
         window.localStorage.setItem('code_verifier', codeVerifier);
@@ -195,17 +211,17 @@ export class NetworkQueryies {
     private authInstance: AuthAgent;
     private BASE_URL = 'https://api.spotify.com';
 
-    constructor(clientId: string) {
+    constructor(clientId: string, private logger?: ILogger) {
         this.authInstance = AuthAgent.getInstance(clientId);
     }
 
-    private async queryBuilder(method: 'GET', url: string, headers?: object) {
+    private async queryBuilder(method: 'GET', url: string, headers?: object, relativeUrl: boolean = true) {
         const token = await this.authInstance.getToken();
         const queryHeaders = {
             'Authorization': `Bearer ${token}`,
             ...headers,
         }
-        const response = await fetch(this.BASE_URL + url, {
+        const response = await fetch(relativeUrl ? this.BASE_URL + url : url, {
             method,
             headers: queryHeaders,
         });
@@ -216,7 +232,55 @@ export class NetworkQueryies {
     }
 
     async getUserId() {
+        this.logger?.log('Fetching user ID')
         const response = await this.queryBuilder('GET', '/v1/me');
         return (await response.json() as SpotifyUser).id;
+    }
+
+    private async fetchPlaylistChunk(url: string) {
+        return await (await this.queryBuilder('GET', url, undefined, true)).json() as IPlaylist;
+    }
+
+    async fetchPlaylist(id: string) {
+        if (ALREADY_DOWNLOADED[id]) {
+            this.logger?.log(`Skipping playlist with ID ${id}, it is already cached`);
+            return;
+        }
+        this.logger?.log('Beginning of fetching the playlist with ID ' + id);
+        const relativeUrl = id.toLowerCase() === 'liked' ? '/me/tracks' : '/playlists/' + id + '/tracks';
+        const url = this.BASE_URL + relativeUrl;
+        const params = {
+            playlist_id: id,
+            fields: 'next,items(track(album(release_date),id,popularity))',
+            limit: '50',
+        };
+        const result: ISong[] = [];
+        let current = await this.fetchPlaylistChunk(url + new URLSearchParams(params).toString());
+        let needToProcess = true;
+        while (needToProcess) {
+            result.push(...current.items.map((s): ISong => {
+                const release_date = s.track.album.release_date;
+                const indexOfHyphen = release_date.indexOf('-');
+                const year = parseInt(release_date.slice(0, indexOfHyphen === -1 ? undefined : indexOfHyphen));
+                return { year, popularity: s.track.popularity, id: s.track.id };
+            }));
+            needToProcess = current.next !== undefined;
+            if (needToProcess) {
+                current = await this.fetchPlaylistChunk(current.next!);
+            }
+        }
+        this.logger?.log('Fetching successful');
+        ALREADY_DOWNLOADED[id] = result;
+    }
+
+    async uploadPlaylist(uris: string[], name: string) {
+        const metadata = {
+            name,
+            description: 'Made with Spotify Mixer',
+            public: false,
+        };
+        const header = {
+            'Content-Type': 'application/json',
+        };
     }
 }

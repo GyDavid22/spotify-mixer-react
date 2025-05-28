@@ -104,10 +104,6 @@ function App() {
 
   return (
     <>
-    <button onClick={async () => {
-      const query = new NetworkQueryies('a9c9b351f7e24810acb7c7002d64950e');
-      console.log(await query.getUserId());
-    }}>Auth test</button>
       <h1 className='mb-5 mt-4'><Icon classNames='bi-spotify me-3'></Icon>Spotify Mixer</h1>
       <div className='d-flex flex-column gap-1'>       
         <fieldset disabled={queryState === 'pending'} className='d-flex flex-column gap-1'>

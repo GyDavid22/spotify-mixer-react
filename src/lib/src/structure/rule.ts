@@ -1,13 +1,13 @@
 import { IRule } from "../interfaces";
-import { Song } from "./song";
+import { ISong } from "./song";
 
 // TODO: create root node somehow
 
 export class Rule {
-    private songs: Song[] = [];
-    private playedSongs: Song[] = [];
-    private songsToPlay: Song[] = [];
-    private compareFunc: (s: Song) => number;
+    private songs: ISong[] = [];
+    private playedSongs: ISong[] = [];
+    private songsToPlay: ISong[] = [];
+    private compareFunc: (s: ISong) => number;
     private subRules: Rule[];
     private isRepeating: boolean;
 
@@ -24,7 +24,7 @@ export class Rule {
         this.isRepeating = false;
     }
 
-    addSong(s: Song) {
+    addSong(s: ISong) {
         if ((this.rule.min === null && this.rule.max === null)
             || (this.rule.min === null && this.compareFunc(s) <= this.rule.max!)
             || (this.rule.max === null && this.rule.min! <= this.compareFunc(s))
@@ -54,7 +54,7 @@ export class Rule {
         }
     }
 
-    getNext(): Song | null {
+    getNext(): ISong | null {
         if (this.subRules.length) {
             const selectedPercent = Math.floor(Math.random() * 100) + 1; // [1, 100]
             let bottom = 0;
