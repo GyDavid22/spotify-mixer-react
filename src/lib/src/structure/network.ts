@@ -50,7 +50,7 @@ class AuthAgent {
      * 
      * As a result it redirects the user to the Spotify authentication page.
      */
-    private async beginAuthentication() {
+    private async authentication() {
         const generateRandomString = (length: number) => {
             const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             const values = crypto.getRandomValues(new Uint8Array(length));
@@ -114,9 +114,9 @@ class AuthAgent {
     }
 
     /**
-     * This code is mostly copied from the Spotify docs
+     * This code has a lot of copied parts from the Spotify docs
      */
-    async refreshToken() {
+    async getToken() {
         let body, response;
         const refreshToken = localStorage.getItem('refresh_token');
         const tokenExpiryDate = localStorage.getItem('token_expiry_date');
@@ -124,7 +124,7 @@ class AuthAgent {
             const code = this.readCode();
             const codeVerifier = localStorage.getItem('code_verifier');
             if (!codeVerifier || !code) {
-                this.beginAuthentication();
+                this.authentication();
                 return;
             }
 
@@ -193,23 +193,30 @@ export class QueryError extends Error {
 
 export class NetworkQueryies {
     private authInstance: AuthAgent;
+    private BASE_URL = 'https://api.spotify.com';
 
     constructor(clientId: string) {
         this.authInstance = AuthAgent.getInstance(clientId);
     }
 
-    async getUserId() {
-        const token = await this.authInstance.refreshToken();
-        const headers = {
+    private async queryBuilder(method: 'GET', url: string, headers?: object) {
+        const token = await this.authInstance.getToken();
+        const queryHeaders = {
             'Authorization': `Bearer ${token}`,
-        };
-        const response = await fetch('https://api.spotify.com/v1/me', {
-            method: 'GET',
-            headers,
+            ...headers,
+        }
+        const response = await fetch(this.BASE_URL + url, {
+            method,
+            headers: queryHeaders,
         });
         if (response.status !== 200) {
             throw new QueryError(response.status, await response.text());
         }
+        return response;
+    }
+
+    async getUserId() {
+        const response = await this.queryBuilder('GET', '/v1/me');
         return (await response.json() as SpotifyUser).id;
     }
 }
