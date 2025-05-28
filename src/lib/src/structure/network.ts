@@ -126,6 +126,9 @@ export class AuthAgent {
                 throw new Error(`Authentication failed. Response from the API: ${error}`);
             }
         }
+        const url = new URL(window.location.href);
+        url.searchParams.delete('code');
+        window.history.replaceState({}, '', url);
         return code;
     }
 
