@@ -1,9 +1,7 @@
 export type RuleType = 'year' | 'popularity';
 
 export interface ISettingsData {
-    userId: string;
     clientId: string;
-    clientSecret: string;
 }
 
 export interface IRule {

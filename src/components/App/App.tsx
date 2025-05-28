@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './App.css';
 import RuleEditor from './RuleEditor/RuleEditor';
 import Settings from './Settings/Settings';
@@ -6,16 +6,12 @@ import Icon from './Icon/Icon';
 import RulePicker from './RulePicker/RulePicker';
 import Button from './Button/Button';
 import Console from './Console/Console';
-import * as bootstrap from 'bootstrap';
 import { ISettingsData, IRuleset } from '../../lib/index';
+import { NetworkQueryies } from '../../lib/src/structure/network';
 
 type QueryState = 'ready' | 'pending' | 'success' | 'error';
 
 function App() {
-  useEffect(() => {
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    tooltipTriggerList.forEach((el) => new bootstrap.Tooltip(el));
-  });
   let initialSettings: ISettingsData | undefined;
   if (typeof localStorage !== 'undefined' && localStorage) {
     const local = localStorage.getItem('authSettings');
@@ -38,9 +34,7 @@ function App() {
     }
   }
   const [settings, setSettings] = useState(initialSettings ? initialSettings : {
-    userId: '',
     clientId: '',
-    clientSecret: '',
   } as ISettingsData);
   const recieveSettings = (newSettings: ISettingsData) => {
     setSettings(newSettings);
@@ -110,14 +104,12 @@ function App() {
 
   return (
     <>
+    <button onClick={async () => {
+      const query = new NetworkQueryies('a9c9b351f7e24810acb7c7002d64950e');
+      console.log(await query.getUserId());
+    }}>Auth test</button>
       <h1 className='mb-5 mt-4'><Icon classNames='bi-spotify me-3'></Icon>Spotify Mixer</h1>
       <div className='d-flex flex-column gap-1'>       
-        <p className='small mb-0 text-body-secondary'>
-          <a className='me-1' href='https://developer.spotify.com/documentation/web-api/concepts/apps' target='_blank' rel="_ noreferrer">
-            How can I get these?
-          </a>
-          <span data-bs-toggle="tooltip" data-bs-title="Make sure to add the current URL to the redirect URIs!"><Icon classNames='bi-question-circle-fill'></Icon></span>
-        </p>
         <fieldset disabled={queryState === 'pending'} className='d-flex flex-column gap-1'>
           <Settings settings={settings} onChange={recieveSettings}></Settings>
           <div className='my-1'></div>
