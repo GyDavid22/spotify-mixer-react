@@ -197,7 +197,7 @@ export class AuthAgent {
             return localStorage.getItem('access_token')!;
         }
 
-        if (body.status !== 200) {
+        if (![200, 201].includes(body.status)) {
             throw new Error(`Something went wrong with the authentication. Status: ${body.status}, message: ${await body.text}`);
         }
         return localStorage.getItem('access_token')!;
@@ -218,7 +218,7 @@ export class NetworkQueryies {
         this.authInstance = AuthAgent.getInstance(clientId);
     }
 
-    private async queryBuilder(method: 'GET', url: string, headers?: object, relativeUrl: boolean = true) {
+    private async queryBuilder(method: 'GET' | 'POST', url: string, headers?: object, relativeUrl: boolean = true, body?: BodyInit) {
         const token = await this.authInstance.getToken();
         const queryHeaders = {
             'Authorization': `Bearer ${token}`,
@@ -227,6 +227,7 @@ export class NetworkQueryies {
         const response = await fetch(relativeUrl ? this.BASE_URL + url : url, {
             method,
             headers: queryHeaders,
+            body,
         });
         if (response.status !== 200) {
             throw new QueryError(response.status, await response.text());
@@ -277,13 +278,28 @@ export class NetworkQueryies {
     }
 
     async uploadPlaylist(uris: string[], name: string) {
+        this.logger?.log(`Beginning to upload playlist with name ${name}`);
         const metadata = {
             name,
             description: 'Made with Spotify Mixer',
             public: false,
+            collaborative: false,
         };
         const header = {
             'Content-Type': 'application/json',
         };
+        const userId = await this.getUserId();
+        let response = await this.queryBuilder('POST', `/users/${userId}/playlists`, header, true, JSON.stringify({...metadata}));
+        const id = ((await response.json()) as { id: string }).id;
+
+        let bottom = 0;
+        let top = 100;
+        while (bottom < uris.length) {
+            const piece = uris.slice(bottom, top);
+            await this.queryBuilder('POST', `/playlists/${id}/tracks`, header, true, JSON.stringify({uris: piece}));
+            bottom = top;
+            top += 100;
+        }
+        this.logger?.log('Upload successful');
     }
 }
