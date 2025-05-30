@@ -8,7 +8,7 @@ export class Rule {
     private playedSongs: ISong[] = [];
     private songsToPlay: ISong[] = [];
     private compareFunc: (s: ISong) => number;
-    private subRules: Rule[];
+    protected subRules: Rule[];
     private isRepeating: boolean;
 
     constructor(public rule: IRule) {
@@ -102,6 +102,25 @@ export class Rule {
         for (const subrule of this.subRules) {
             subrules += `    ${subrule.toString()}`;
         }
-        return val;
+        return val + subrules;
+    }
+}
+
+export class RootRule extends Rule {
+    constructor(rules: IRule[]) {
+        super({
+            probability: 100,
+            type: "year",
+            min: null,
+            max: null,
+            useUp: false,
+            subrules: rules,
+        });
+    }
+
+    override toString() {
+        let result = '';
+        this.subRules.forEach(r => result += r.toString());
+        return result;
     }
 }
