@@ -1,3 +1,5 @@
+Note: This project is working in its current state with correct input values, however, it could use some streamlining (e.g. better validations, UX, bugfixes, refactors, more features)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
