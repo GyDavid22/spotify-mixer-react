@@ -1,4 +1,5 @@
 import { JSX } from "react";
+import './Console.css';
 
 export interface IConsoleItem {
     type: 'standard' | 'error' | 'success',
@@ -32,9 +33,9 @@ function Console({messages}: IConsole) {
 
     return (
         <div className="card">
-            <div className="card-body font-monospace">
+            <pre className="card-body console-text">
                 {rendered}
-            </div>
+            </pre>
         </div>
     );
 }
