@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './App.css';
 import RuleEditor from './RuleEditor/RuleEditor';
 import Settings from './Settings/Settings';
@@ -101,7 +101,7 @@ function App() {
     input.click();
   };
   const [consoleItems, setConsoleItems] = useState<IConsoleItem[]>([]);
-  const startHandler = async () => {
+  const startHandler = useCallback(async () => {
     setQueryState('pending');
     const logger = new ConcreteLogger(setConsoleItems);
     const result = await main(logger, settings, rulesets[selectedRuleset]);
@@ -110,14 +110,14 @@ function App() {
     } else {
       setQueryState('error');
     }
-  };
-  // useEffect(() => {
-  //   const urlParams = new URLSearchParams(window.location.search);
-  //   if (urlParams.has('code') || urlParams.has('code')) {
-  //     document.getElementById('console')?.scrollTo();
-  //     startHandler();
-  //   }
-  // }, []);
+  }, [rulesets, selectedRuleset, settings]);
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('code') || urlParams.has('code')) {
+      document.getElementById('console')?.scrollTo();
+      startHandler();
+    }
+  }, [startHandler]);
 
   return (
     <>
