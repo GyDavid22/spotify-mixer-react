@@ -1,5 +1,7 @@
 Note: This project is working in its current state, however, it could use some streamlining (e.g. better validations, UX, refactors, more features)
 
+Spiritual successor of [https://github.com/GyDavid22/spotify-mixer](https://github.com/GyDavid22/spotify-mixer), you can read more there and on the hosted version: [https://spotify-mixer-react.onrender.com/](https://spotify-mixer-react.onrender.com/)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
