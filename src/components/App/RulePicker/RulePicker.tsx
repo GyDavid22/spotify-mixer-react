@@ -24,6 +24,7 @@ function RulePicker({ rules, selectedIndex, onSave, onDelete, onChange, onDownlo
     const inputChangeHandler = (val: string) => {
         setSelectValue(-1);
         setNameField(val);
+        onChange(-1);
     };
     const saveHandler = () => {
         if (nameField !== '') {

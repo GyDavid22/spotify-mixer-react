@@ -12,22 +12,18 @@ type QueryState = 'ready' | 'pending' | 'success' | 'error';
 
 function App() {
   let initialSettings: ISettingsData | undefined;
+  let initialRulesets: IRuleset[] | undefined;
+  let initialSelected: number | undefined;
   if (typeof localStorage !== 'undefined' && localStorage) {
-    const local = localStorage.getItem('authSettings');
+    let local = localStorage.getItem('authSettings');
     if (local) {
       initialSettings = JSON.parse(local);
     }
-  }
-  let initialRulesets: IRuleset[] | undefined;
-  if (typeof localStorage !== 'undefined' && localStorage) {
-    const local = localStorage.getItem('rulesets');
+    local = localStorage.getItem('rulesets');
     if (local) {
       initialRulesets = JSON.parse(local);
     }
-  }
-  let initialSelected: number | undefined;
-  if (typeof localStorage !== 'undefined' && localStorage) {
-    const local = localStorage.getItem('selectedRuleset');
+    local = localStorage.getItem('selectedRuleset');
     if (local) {
       initialSelected = parseInt(JSON.parse(local));
     }
@@ -48,10 +44,10 @@ function App() {
     if (typeof localStorage !== 'undefined' && localStorage) {
       localStorage.setItem('rulesets', JSON.stringify(rules));
     }
+    setRulesets(rules);
   };
   const rulesetSaveHandler = (name: string) => {
     const result = [...rulesets, { name, length: 0, source: '', rules: [] } as IRuleset];
-    setRulesets(result);
     saveRuleset(result);
   };
   const rulesetChangeHandler = (index: number) => {
@@ -62,12 +58,10 @@ function App() {
   };
   const rulesetDeleteHandler = (index: number) => {
     const result = [ ...rulesets.slice(0, index), ...rulesets.slice(index + 1) ];
-    setRulesets(result);
     saveRuleset(result);
   };
   const rulesetUpdateHandler = (r: IRuleset) => {
-    const result = [ ...rulesets.slice(0, selectedRuleset), r, ...rulesets.slice(selectedRuleset + 1) ];
-    setRulesets(result);
+    const result = [ ...rulesets.slice(0, selectedRuleset), {...r}, ...rulesets.slice(selectedRuleset + 1) ];
     saveRuleset(result);
   }
   const downloadHandler = () => {
@@ -91,7 +85,6 @@ function App() {
             const text = await input.files[0].text();
             try {
                 const json = JSON.parse(text);
-                setRulesets(json);
                 rulesetChangeHandler(-1);
                 saveRuleset(json);
             } catch { }

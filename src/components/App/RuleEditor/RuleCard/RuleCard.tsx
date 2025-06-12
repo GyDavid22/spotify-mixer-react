@@ -47,25 +47,13 @@ function RuleCard({rule, selfIndex, onUpdate, onDelete}: IRuleCard) {
     onUpdate(updated, selfIndex);
   };
   const updateChild = (r: Partial<IRule>, i: number) => {
-    const updated: IRule = {
-      ...rule,
-      subrules: [...rule.subrules.slice(0, i), { ...rule.subrules[i], ...r }, ...rule.subrules.slice(i + 1)],
-    };
-    onUpdate(updated, selfIndex);
+    update({subrules: [...rule.subrules.slice(0, i), { ...rule.subrules[i], ...r }, ...rule.subrules.slice(i + 1)]});
   };
   const createChild = () => {
-    const updated: IRule = {
-      ...rule,
-      subrules: [...rule.subrules, getDefaultRule()],
-    };
-    onUpdate(updated, selfIndex);
+    update({subrules: [...rule.subrules, getDefaultRule()]});
   }
   const deleteChild = (i: number) => {
-    const updated: IRule = {
-      ...rule,
-      subrules: [...rule.subrules.slice(0, i), ...rule.subrules.slice(i + 1)],
-    };
-    onUpdate(updated, selfIndex);
+    update({subrules: [...rule.subrules.slice(0, i), ...rule.subrules.slice(i + 1)]});
   };
   const deleteSelf = () => {
     onDelete(selfIndex);

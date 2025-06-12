@@ -30,21 +30,15 @@ function RuleEditor({ ruleset, onChange }: IRuleEditor) {
             ruleset.rules = [];
         }
         ruleset.rules.push(getDefaultRule());
-        update({rules: ruleset.rules});
+        update({rules: [...ruleset.rules]});
     };
     const childUpdate = (r: IRule, i: number) => {
-        const updated = {
-            ...ruleset,
-            rules: [...ruleset.rules.splice(0, i), r, ...ruleset.rules.slice(i + 1)],
-        };
-        onChange(updated);
+        const updated = [...ruleset.rules];
+        updated[i] = {...r};
+        update({rules: updated});
     };
     const childDelete = (i: number) => {
-        const updated = {
-            ...ruleset,
-            rules: [...ruleset.rules.splice(0, i), ...ruleset.rules.slice(i + 1)],
-        };
-        onChange(updated);
+        update({rules: [...ruleset.rules.splice(0, i), ...ruleset.rules.slice(i + 1)]});
     };
 
     return (
