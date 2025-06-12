@@ -1,4 +1,4 @@
-import { IRule } from "../interfaces";
+import { IRule } from "./interfaces";
 import { ISong } from "./song";
 
 export class Rule {
@@ -6,7 +6,7 @@ export class Rule {
     private playedSongs: ISong[] = [];
     private songsToPlay: ISong[] = [];
     private compareFunc: (s: ISong) => number;
-    protected subRules: Rule[];
+    private subRules: Rule[];
     private isRepeating: boolean;
 
     constructor(public rule: IRule) {
@@ -52,7 +52,7 @@ export class Rule {
         }
     }
 
-    getNext(): ISong | null {
+    getNext(): ISong {
         if (this.subRules.length) {
             const selectedPercent = Math.floor(Math.random() * 100) + 1; // [1, 100]
             let bottom = 0;
@@ -73,13 +73,9 @@ export class Rule {
                     this.isRepeating = true;
                 }
                 return selected;
-            } else {
-                return this.songsToPlay[Math.floor(Math.random() * this.songsToPlay.length)];
             }
         }
-        /* This shouldn't happen as there are validations before getting here
-           The only reason for this is to supress errors */
-        return null;
+        return this.songsToPlay[Math.floor(Math.random() * this.songsToPlay.length)];
     }
 
     isOnRepeat(): boolean {
@@ -126,7 +122,7 @@ export class RootRule extends Rule {
 
     override toString() {
         let result = '';
-        this.subRules.forEach(r => result += r.toString());
+        this.getSubrules().forEach(r => result += r.toString());
         return result;
     }
 }

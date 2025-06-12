@@ -1,5 +1,5 @@
 import { ILogger, IRuleset, ISettingsData } from "./src/interfaces";
-import { mix } from "./src/structure/mixer";
+import { mix } from "./src/mixer";
 
 export const main = async (logger: ILogger, settings: ISettingsData, rules: IRuleset): Promise<boolean> => {
     try {

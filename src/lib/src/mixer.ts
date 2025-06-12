@@ -1,4 +1,4 @@
-import { ILogger, IRule, IRuleset } from "../interfaces";
+import { ILogger, IRule, IRuleset } from "./interfaces";
 import { NetworkQueryies } from "./network";
 import { RootRule, Rule } from "./rule";
 import { ISong } from "./song";
@@ -20,7 +20,7 @@ export const mix = async (r: IRuleset, clientId: string, logger: ILogger) => {
 
     let i = 0;
     while ((r.length === -1 && !root.isOnRepeat()) || i < r.length) {
-        resultPlaylist.push(root.getNext()!);
+        resultPlaylist.push(root.getNext());
         i++;
     }
 
@@ -51,6 +51,8 @@ const checkProbabilities = (r: IRule[]) => {
     for (const rule of r) {
         if (rule.probability < 0 || rule.probability > 100) {
             throw new Error('Every probability should be between 0 and 100!')
+        } else if (rule.min !== null && rule.max !== null && rule.min > rule.max) {
+            throw new Error('Min cannot be greater than max!');
         }
         sum += rule.probability;
     }
