@@ -53,19 +53,19 @@ function RuleEditor({ ruleset, onChange }: IRuleEditor) {
                 <label htmlFor="ruleset-name">
                     Ruleset name:
                 </label>
-                <input type="text" className="form-control w-auto" id="ruleset-name" value={ruleset.name} onChange={(e) => { update({name: e.target.value}); }}></input>
+                <input type="text" className="form-control w-auto" id="ruleset-name" value={ruleset.name} onChange={(e) => { update({name: e.target.value}); }} required></input>
             </div>
             <div className="d-flex gap-1 align-items-center">
                 <label htmlFor="playlist-length">
                     Playlist length:
                 </label>
-                <input type="number" className="form-control w-auto" min="-1" id="playlist-length" value={ruleset.length} onChange={(e) => lengthUpdateHandler(e.target.value)} onBlur={(e) => lengthUpdateHandler(e.target.value === '' ? '0' : e.target.value)}></input>
+                <input type="number" className="form-control w-auto" min="-1" id="playlist-length" value={ruleset.length} onChange={(e) => lengthUpdateHandler(e.target.value)} onBlur={(e) => lengthUpdateHandler(e.target.value === '' ? '0' : e.target.value)} required></input>
             </div>
             <div className="d-flex gap-1 align-items-center">
                 <label htmlFor="playlist-source">
                     Playlist source:
                 </label>
-                <input type="text" className="form-control w-auto" id="playlist-source" value={ruleset.source} onChange={(e) => { update({source: e.target.value}); }}></input>
+                <input type="text" className="form-control w-auto" id="playlist-source" value={ruleset.source} onChange={(e) => { update({source: e.target.value}); }} required></input>
             </div>
             { ruleset.rules.map((r, i) => <RuleCard key={i} rule={r} selfIndex={i} onUpdate={childUpdate} onDelete={childDelete}></RuleCard>) }
             <div>

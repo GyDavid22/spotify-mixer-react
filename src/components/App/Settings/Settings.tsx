@@ -30,7 +30,7 @@ function Settings({settings, onChange}: ISettings) {
                 <span data-bs-toggle="tooltip" data-bs-title={`Make sure to add the current URL to the redirect URIs! (${window.location.origin + window.location.pathname})`}><Icon classNames='bi-question-circle-fill'></Icon></span>
             </p>
             <label htmlFor="client-id">Client ID:</label>
-            <input type="text" className="form-control" id="client-id" placeholder="Client ID" value={settings.clientId} onChange={(e) => updateSettings({clientId: e.target.value})}></input>
+            <input type="text" className="form-control" id="client-id" placeholder="Client ID" value={settings.clientId} onChange={(e) => updateSettings({clientId: e.target.value})} required></input>
         </>
     );
 }
