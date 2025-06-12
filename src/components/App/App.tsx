@@ -150,13 +150,27 @@ function App() {
             <div className='my-1'></div>
           </div>
         <div>
-          <h5>Why?</h5>
-          <p>Spotify mixes are great, but there is one problem: they are too specific. With this web app, you can create mixes with more variety and predefined ratios from an already existing pool of songs.</p>
-          <p>Let's imagine one scenario: You would like to listen to old music and new ones as well, but you have 1000 old songs and only 20 new ones. Shuffle doesn't help you out, you would mostly hear old ones, with the new ones here and there. Spotify mixes would create lists only with either old or new songs. With this web app you can specify ratios: e.g. 80% music from the '80s and 20% since 2020. This way you can give each category as much attention as you would like to, without creating the playlists manually, sparing time, resulting in a personalized radio-like experience.</p>
+          <h5>
+            Why?
+          </h5>
+          <p>
+            Spotify mixes are great, but there is one problem: they are too specific. With this web app, you can create mixes with more variety and predefined ratios from an already existing pool of songs.
+          </p>
+          <p>
+            Let's imagine one scenario: You would like to listen to old music and new ones as well, but you have 1000 old songs and only 20 new ones. Shuffle doesn't help you out, you would mostly hear old ones, with the new ones here and there. Spotify mixes would create lists only with either old or new songs. With this web app you can specify ratios: e.g. 80% music from the '80s and 20% since 2020. This way you can give each category as much attention as you would like to, without creating the playlists manually, sparing time, resulting in a personalized radio-like experience.
+          </p>
           <h5>
             Data privacy
           </h5>
-          <p>This app doesn't use any backend besides the official Spotify APIs. That means your Spotify application credentials are safe and are not forwarded to anyone but Spotify. <b>Every data you input here are stored locally on your computer, using localStorage. Spotify app credentials are not included in the JSON backup for safety reasons.</b></p>
+          <p>
+            This app doesn't use any backend besides the official Spotify APIs. That means your Spotify application credentials are safe and are not forwarded to anyone but Spotify. <b>Every data you input here are stored locally on your computer, using localStorage. Spotify app credentials are not included in the JSON backup for safety reasons.</b>
+          </p>
+          <h5>
+            Why is creating my own app on Spotify Dashboard necessary?
+          </h5>
+          <p>
+            Spotify defines two quota modes for apps: development and extended quota mode. Development mode requires inviting users manually, with a limit of 25 people, so to make an app freely available for end users the latter is necessary. However, <a href='https://developer.spotify.com/documentation/web-api/concepts/quota-modes' target='_blank' rel='_ noreferrer'>according to the documentations</a>, enabling an app for extended quota mode has high requirements, like being a corporation and having at least 250 000 monthly active users.
+          </p>
         </div>
       </div>
       <footer className='d-flex justify-content-center my-3 text-body-secondary'>
