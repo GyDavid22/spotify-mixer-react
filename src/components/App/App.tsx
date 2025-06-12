@@ -156,7 +156,7 @@ function App() {
             Data privacy
           </h5>
           <p>
-            This app doesn't use any backend besides the official Spotify APIs. That means your Spotify application credentials are safe and are not forwarded to anyone but Spotify. <b>Every data you input here are stored locally on your computer, using localStorage. Spotify app credentials are not included in the JSON backup for safety reasons.</b>
+            This app doesn't use any backend besides the official Spotify APIs. That means your Spotify application credentials are safe and are not forwarded to anyone but Spotify. <b>Every data you input here are stored locally on your computer, using localStorage. Spotify app credentials or any sensitive data are not included in the JSON backup for safety reasons. This app doesn't handles or receives your password in any way, and doesn't have access to anything more than you give permission for when you authenticate the first time.</b>
           </p>
           <h5>
             Why is creating my own app on Spotify Dashboard necessary?
