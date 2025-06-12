@@ -298,7 +298,7 @@ export class NetworkQueryies {
             'Content-Type': 'application/json',
         };
         const userId = await this.getUserId();
-        let response = await this.queryBuilder('POST', `/v1/users/${userId}/playlists`, header, true, JSON.stringify({...metadata}));
+        const response = await this.queryBuilder('POST', `/v1/users/${userId}/playlists`, header, true, JSON.stringify({...metadata}));
         const id = ((await response.json()) as { id: string }).id;
 
         let bottom = 0;
