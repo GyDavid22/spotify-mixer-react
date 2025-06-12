@@ -1,3 +1,5 @@
+import { JSX } from "react";
+
 export interface IConsoleItem {
     type: 'standard' | 'error' | 'success',
     message: string;
@@ -8,7 +10,7 @@ interface IConsole {
 }
 
 function Console({messages}: IConsole) {
-    const rendered = [];
+    const rendered: JSX.Element[] = [];
     for (let i = 0; i < messages.length; i++) {
         const item = messages[i];
         let bsClass;
@@ -23,7 +25,9 @@ function Console({messages}: IConsole) {
                 bsClass = '';
                 break;
         }
-        rendered.push(<div key={i} className={bsClass}>{item.message}</div>)
+        for (const m of item.message.split('\n')) {
+            rendered.push(<div key={i} className={bsClass}>{m}</div>)
+        }
     }
 
     return (
