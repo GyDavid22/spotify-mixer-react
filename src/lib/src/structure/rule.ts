@@ -1,8 +1,6 @@
 import { IRule } from "../interfaces";
 import { ISong } from "./song";
 
-// TODO: create root node somehow
-
 export class Rule {
     private songs: ISong[] = [];
     private playedSongs: ISong[] = [];
@@ -96,8 +94,16 @@ export class Rule {
         return this.isRepeating;
     }
 
+    getSongCount() {
+        return this.songs.length;
+    }
+
+    getSubrules() {
+        return this.subRules;
+    }
+
     toString() {
-        const val = `Rule: probability: ${this.rule.probability}, type: ${this.rule.type}, min: ${this.rule.min}, max: ${this.rule.max}, use up: ${this.rule.useUp}${this.songs.length ? `, count of songs: ${this.songs.length}` : ''}\n`;
+        const val = `Probability: ${this.rule.probability}, type: ${this.rule.type}, min: ${this.rule.min}, max: ${this.rule.max}, use up: ${this.rule.useUp}${this.songs.length ? `, count of songs: ${this.songs.length}` : ''}\n`;
         let subrules = '';
         for (const subrule of this.subRules) {
             subrules += `    ${subrule.toString()}`;

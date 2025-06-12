@@ -27,11 +27,12 @@ export const getDefaultRule: () => IRule = () => {
 export interface IRuleset {
   name: string,
   length: number,
+  source: string | 'liked',
   rules: IRule[],
 }
 
 export type MessageType = 'standard' | 'error' | 'success';
 
 export interface ILogger {
-  log: (message: string | any, type?: MessageType) => void,
+  log: (message: string | Error, type?: MessageType) => void,
 };

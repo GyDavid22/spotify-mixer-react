@@ -1,7 +1,7 @@
 export interface ISong {
     year: number,
     popularity: number,
-    id: string,
+    uri: string,
 };
 
 /**

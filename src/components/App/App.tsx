@@ -5,9 +5,8 @@ import Settings from './Settings/Settings';
 import Icon from './Icon/Icon';
 import RulePicker from './RulePicker/RulePicker';
 import Button from './Button/Button';
-import Console from './Console/Console';
-import { ISettingsData, IRuleset } from '../../lib/index';
-import { NetworkQueryies } from '../../lib/src/structure/network';
+import Console, { IConsoleItem } from './Console/Console';
+import { ISettingsData, IRuleset, ILogger, MessageType, main } from '../../lib/index';
 
 type QueryState = 'ready' | 'pending' | 'success' | 'error';
 
@@ -51,7 +50,7 @@ function App() {
     }
   };
   const rulesetSaveHandler = (name: string) => {
-    const result = [...rulesets, { name, length: 0, rules: [] } as IRuleset];
+    const result = [...rulesets, { name, length: 0, source: '', rules: [] } as IRuleset];
     setRulesets(result);
     saveRuleset(result);
   };
@@ -101,6 +100,24 @@ function App() {
 
     input.click();
   };
+  const [consoleItems, setConsoleItems] = useState<IConsoleItem[]>([]);
+  const startHandler = async () => {
+    setQueryState('pending');
+    const logger = new ConcreteLogger(setConsoleItems);
+    const result = await main(logger, settings, rulesets[selectedRuleset]);
+    if (result) {
+      setQueryState('success'); 
+    } else {
+      setQueryState('error');
+    }
+  };
+  // useEffect(() => {
+  //   const urlParams = new URLSearchParams(window.location.search);
+  //   if (urlParams.has('code') || urlParams.has('code')) {
+  //     document.getElementById('console')?.scrollTo();
+  //     startHandler();
+  //   }
+  // }, []);
 
   return (
     <>
@@ -113,20 +130,25 @@ function App() {
           { selectedRuleset !== -1 && <RuleEditor ruleset={rulesets[selectedRuleset]} onChange={rulesetUpdateHandler}></RuleEditor>}
           <div className='my-1'></div>
           <div className='d-flex align-items-center gap-2'>
-            <Button text='Start mixing!' iconName='bi-vinyl-fill' styleName='success' fill={true}></Button>
+            <Button text='Start mixing!' iconName='bi-vinyl-fill' styleName='success' fill={true} onClick={startHandler}></Button>
             {
               queryState === 'pending' ? (
                 <div className="spinner-border" role="status">
                   <span className="visually-hidden">Loading...</span>
                 </div>
               ) : queryState === 'success' ? (
-                <Icon classNames='bi-check-lg text-success checkmark'></Icon>
+                <Icon classNames='bi-check-lg text-success result-symbol'></Icon>
+              ) : queryState === 'error' ? (
+                <Icon classNames='bi-x-lg text-danger result-symbol'></Icon>
               ) : <></>
             }
           </div>
         </fieldset>
         <div className='my-1'></div>
-          {true && (<div id='console'><Console messages={[{message: 'Console is working!', type: 'standard'}]}></Console><div className='my-1'></div></div>)}
+          <div id='console'>
+            <Console messages={consoleItems}></Console>
+            <div className='my-1'></div>
+          </div>
         <div>
           <h5>Why?</h5>
           <p>Spotify mixes are great, but there is one problem: they are too specific. With this web app, you can create mixes with more variety and predefined ratios from an already existing pool of songs.</p>
@@ -144,6 +166,27 @@ function App() {
       </footer>
     </>
   );
+}
+
+export class ConcreteLogger implements ILogger {
+  private arr: IConsoleItem[];
+
+  constructor(private setter: React.Dispatch<React.SetStateAction<IConsoleItem[]>>) {
+    this.arr = [];
+    this.setter([]);
+  }
+
+  log(message: string | Error, type?: MessageType) {
+    let finalText;
+    if (message instanceof Error) {
+      finalText = message.message;
+    } else {
+      finalText = message;
+    }
+    const newArr = [...this.arr, { message: finalText, type: type ?? 'standard' }];
+    this.arr = newArr;
+    this.setter(newArr);
+  };
 }
 
 export default App;

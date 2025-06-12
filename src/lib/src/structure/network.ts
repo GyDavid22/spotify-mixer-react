@@ -44,6 +44,7 @@ interface IPlaylist {
                 release_date: string,
             },
             id: string,
+            uri: string,
             popularity: number,
         },
     }[],
@@ -229,7 +230,7 @@ export class NetworkQueryies {
             headers: queryHeaders,
             body,
         });
-        if (response.status !== 200) {
+        if (![200, 201].includes(response.status)) {
             throw new QueryError(response.status, await response.text());
         }
         return response;
@@ -242,39 +243,47 @@ export class NetworkQueryies {
     }
 
     private async fetchPlaylistChunk(url: string) {
-        return await (await this.queryBuilder('GET', url, undefined, true)).json() as IPlaylist;
+        return await (await this.queryBuilder('GET', url, undefined, false)).json() as IPlaylist;
     }
 
-    async fetchPlaylist(id: string) {
+    async fetchPlaylist(id: string | 'liked') {
         if (ALREADY_DOWNLOADED[id]) {
             this.logger?.log(`Skipping playlist with ID ${id}, it is already cached`);
-            return;
+            return ALREADY_DOWNLOADED[id];
         }
         this.logger?.log('Beginning of fetching the playlist with ID ' + id);
-        const relativeUrl = id.toLowerCase() === 'liked' ? '/me/tracks' : '/playlists/' + id + '/tracks';
+        const relativeUrl = id.toLowerCase() === 'liked' ? '/v1/me/tracks' : '/v1/playlists/' + id + '/tracks';
         const url = this.BASE_URL + relativeUrl;
-        const params = {
+        const params: {
+            playlist_id?: string,
+            fields: string,
+            limit: string,
+        } = id === 'liked' ? {
+            fields: 'next,items(track(album(release_date),id,popularity))',
+            limit: '50',
+        } : {
             playlist_id: id,
             fields: 'next,items(track(album(release_date),id,popularity))',
             limit: '50',
         };
         const result: ISong[] = [];
-        let current = await this.fetchPlaylistChunk(url + new URLSearchParams(params).toString());
+        let current = await this.fetchPlaylistChunk(url + '?' + new URLSearchParams(params).toString());
         let needToProcess = true;
         while (needToProcess) {
             result.push(...current.items.map((s): ISong => {
                 const release_date = s.track.album.release_date;
                 const indexOfHyphen = release_date.indexOf('-');
                 const year = parseInt(release_date.slice(0, indexOfHyphen === -1 ? undefined : indexOfHyphen));
-                return { year, popularity: s.track.popularity, id: s.track.id };
+                return { year, popularity: s.track.popularity, uri: s.track.uri ?? 'spotify:track:' + s.track.id };
             }));
-            needToProcess = current.next !== undefined;
+            needToProcess = current.next !== null;
             if (needToProcess) {
                 current = await this.fetchPlaylistChunk(current.next!);
             }
         }
         this.logger?.log('Fetching successful');
         ALREADY_DOWNLOADED[id] = result;
+        return result;
     }
 
     async uploadPlaylist(uris: string[], name: string) {
@@ -289,14 +298,14 @@ export class NetworkQueryies {
             'Content-Type': 'application/json',
         };
         const userId = await this.getUserId();
-        let response = await this.queryBuilder('POST', `/users/${userId}/playlists`, header, true, JSON.stringify({...metadata}));
+        let response = await this.queryBuilder('POST', `/v1/users/${userId}/playlists`, header, true, JSON.stringify({...metadata}));
         const id = ((await response.json()) as { id: string }).id;
 
         let bottom = 0;
         let top = 100;
         while (bottom < uris.length) {
             const piece = uris.slice(bottom, top);
-            await this.queryBuilder('POST', `/playlists/${id}/tracks`, header, true, JSON.stringify({uris: piece}));
+            await this.queryBuilder('POST', `/v1/playlists/${id}/tracks`, header, true, JSON.stringify({uris: piece}));
             bottom = top;
             top += 100;
         }
